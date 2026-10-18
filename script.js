@@ -161,58 +161,56 @@ function animate(currentTime) {
 
 // api 키 없을때 기능 확인용 랜덤 생성 함수
 function returnRandomEmotion() {
-    if (!apiKey) {
-        const emotionOptions = [
-            { name: "기쁨", color: "#FFD700" },
-            { name: "슬픔", color: "#4385F5" },
-            { name: "분노", color: "#F04438" },
-            { name: "불안", color: "#A855F7" },
-            { name: "평온", color: "#35C9A5" }
-        ];
+    const emotionOptions = [
+        { name: "기쁨", color: "#FFD700" },
+        { name: "슬픔", color: "#4385F5" },
+        { name: "분노", color: "#F04438" },
+        { name: "불안", color: "#A855F7" },
+        { name: "평온", color: "#35C9A5" }
+    ];
 
-        // 감정 종류를 1~5개 무작위로 선택합니다.
-        for (let i = emotionOptions.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [emotionOptions[i], emotionOptions[j]] =
-                [emotionOptions[j], emotionOptions[i]];
-        }
-
-        const count = Math.floor(Math.random() * 5) + 1;
-        const selected = emotionOptions.slice(0, count);
-
-        const weights = Array(count).fill(0);
-
-        // 100점을 선택된 감정들에 무작위로 배분합니다.
-        // 어떤 감정은 0점일 수 있습니다.
-        for (let remaining = 100; remaining > 0; remaining--) {
-            weights[Math.floor(Math.random() * count)]++;
-        }
-
-        return selected
-            .map((emotion, index) => {
-                const hex = emotion.color.slice(1);
-                const baseRgb = [
-                    parseInt(hex.slice(0, 2), 16),
-                    parseInt(hex.slice(2, 4), 16),
-                    parseInt(hex.slice(4, 6), 16)
-                ];
-
-                const variedHex = baseRgb
-                    .map(value => {
-                        const variation = Math.floor(Math.random() * 37) - 18;
-                        const adjusted = Math.max(0, Math.min(255, value + variation));
-                        return adjusted.toString(16).padStart(2, "0");
-                    })
-                    .join("");
-
-                return {
-                    name: emotion.name,
-                    color: `#${variedHex}`,
-                    weight: weights[index]
-                };
-            })
-            .filter(emotion => emotion.weight > 0);
+    // 감정 종류를 1~5개 무작위로 선택합니다.
+    for (let i = emotionOptions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [emotionOptions[i], emotionOptions[j]] =
+            [emotionOptions[j], emotionOptions[i]];
     }
+
+    const count = Math.floor(Math.random() * 5) + 1;
+    const selected = emotionOptions.slice(0, count);
+
+    const weights = Array(count).fill(0);
+
+    // 100점을 선택된 감정들에 무작위로 배분합니다.
+    // 어떤 감정은 0점일 수 있습니다.
+    for (let remaining = 100; remaining > 0; remaining--) {
+        weights[Math.floor(Math.random() * count)]++;
+    }
+
+    return selected
+        .map((emotion, index) => {
+            const hex = emotion.color.slice(1);
+            const baseRgb = [
+                parseInt(hex.slice(0, 2), 16),
+                parseInt(hex.slice(2, 4), 16),
+                parseInt(hex.slice(4, 6), 16)
+            ];
+
+            const variedHex = baseRgb
+                .map(value => {
+                    const variation = Math.floor(Math.random() * 37) - 18;
+                    const adjusted = Math.max(0, Math.min(255, value + variation));
+                    return adjusted.toString(16).padStart(2, "0");
+                })
+                .join("");
+
+            return {
+                name: emotion.name,
+                color: `#${variedHex}`,
+                weight: weights[index]
+            };
+        })
+        .filter(emotion => emotion.weight > 0);
 }
 
 async function analyzeEmotion(text) {
