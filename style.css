@@ -88,6 +88,8 @@ body {
     margin: 0;
     font-size: clamp(25px, 5vw, 36px);
     line-height: 1.4;
+    word-break: keep-all;
+    text-wrap: balance;
 }
 
 .description {
