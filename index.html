@@ -6,17 +6,113 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>감정의 흔적</title>
     <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
+    <script type="module" src="script.js"></script>
 </head>
 
 <body>
     <canvas id="light-canvas"></canvas>
-    <div class="input-area">
+
+    <main class="start-screen" id="start-screen">
+        <section class="start-card">
+            <div id="emotion-step" class="setup-step">
+                <p class="eyebrow">잠시 멈춰 마음을 바라보는 시간</p>
+                <h1>지금 어떤 감정을 느끼고 있나요?</h1>
+                <p class="description">
+                    지금 가장 바라보고 싶은 감정 하나를 골라주세요.
+                </p>
+
+                <fieldset class="emotion-fieldset">
+                    <legend>감정 선택</legend>
+
+                    <div class="emotion-options">
+                        <label class="emotion-option">
+                            <input type="radio" name="focus-emotion" value="분노">
+                            <span>분노</span>
+                        </label>
+
+                        <label class="emotion-option">
+                            <input type="radio" name="focus-emotion" value="불안">
+                            <span>불안</span>
+                        </label>
+
+                        <label class="emotion-option">
+                            <input type="radio" name="focus-emotion" value="슬픔">
+                            <span>슬픔</span>
+                        </label>
+
+                        <label class="emotion-option">
+                            <input type="radio" name="focus-emotion" value="공포">
+                            <span>공포</span>
+                        </label>
+
+                        <label class="emotion-option">
+                            <input type="radio" name="focus-emotion" value="스트레스">
+                            <span>스트레스</span>
+                        </label>
+                    </div>
+                </fieldset>
+
+                <button class="start-button" id="emotion-next-button" type="button" disabled>
+                    다음
+                </button>
+            </div>
+
+            <form id="color-step" class="setup-step" hidden>
+                <p class="eyebrow">선택한 감정에 색을 입혀보세요</p>
+                <h1>
+                    <span id="selected-emotion-name"></span>에
+                    어떤 색을 입히고 싶나요?
+                </h1>
+                <p class="description">
+                    원하는 색을 골라주세요.
+                </p>
+
+                <label class="color-picker-control" for="emotion-color-picker">
+                    <input type="color" id="emotion-color-picker" value="#FF4F4F" aria-label="감정에 입힐 색상 선택">
+                    <span id="color-value">#FF4F4F</span>
+                </label>
+
+                <div class="step-buttons">
+                    <button class="back-button" id="emotion-back-button" type="button">
+                        이전
+                    </button>
+
+                    <button class="start-button" type="submit">
+                        이 감정으로 시작하기
+                    </button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <div class="input-area" id="writing-screen" hidden>
         <form id="input-form">
-            <input type="text" placeholder="AI에게 말을 걸어보세요" id="user-input">
+            <textarea placeholder="마음에 걸리는 일을 자유롭게 적어보세요" id="user-input" rows="1"></textarea>
             <button id="send-button" type="submit">보내기</button>
         </form>
     </div>
+
+    <main class="ending-screen" id="ending-screen" hidden>
+        <section class="ending-card" aria-labelledby="ending-title">
+            <h1 id="ending-title">이야기를 남겨주셔서 고마워요</h1>
+            <p>지금의 마음을 있는 그대로 나눠주셔서 고마워요.</p>
+            <button class="start-button" id="restart-writing-button" type="button">다시 적기</button>
+        </section>
+    </main>
+
+    <dialog id="idle-dialog" aria-labelledby="idle-title">
+        <h2 id="idle-title">잠시 멈춰 있네요</h2>
+        <p>계속 작성할까요?</p>
+
+        <div class="idle-dialog-buttons">
+            <button id="continue-writing-button" type="button">
+                계속 작성하기
+            </button>
+            <button id="finish-writing-button" type="button">
+                빛을 보내기
+            </button>
+        </div>
+    </dialog>
 </body>
 
 </html>

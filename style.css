@@ -1,23 +1,243 @@
+* {
+    box-sizing: border-box;
+}
+
+[hidden] {
+    display: none !important;
+}
+
 body {
     margin: 0;
     width: 100vw;
     height: 100vh;
     overflow: hidden;
     background: #050914;
+    color: #f4f5f7;
+    font-family: Arial, sans-serif;
 }
 
 #light-canvas {
     position: fixed;
     inset: 0;
+    z-index: 0;
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 0;
 }
 
-.input-area form {
-    z-index: 1;
+.ending-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    color: #181818;
 }
+
+.ending-card {
+    width: min(560px, 100%);
+    padding: 36px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.88);
+    text-align: center;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.08);
+}
+
+.ending-card h1 {
+    margin: 0;
+    font-size: clamp(24px, 5vw, 34px);
+    line-height: 1.4;
+}
+
+.ending-card p {
+    margin: 14px 0 28px;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* 감정 선택 및 색상 선택 화면 */
+
+.start-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    overflow-y: auto;
+    padding: 24px;
+}
+
+.start-card {
+    width: min(560px, 100%);
+    padding: 36px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    background: rgba(15, 20, 31, 0.94);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+
+.eyebrow {
+    margin: 0 0 12px;
+    color: #a7b0c0;
+    font-size: 14px;
+}
+
+.start-card h1 {
+    margin: 0;
+    font-size: clamp(25px, 5vw, 36px);
+    line-height: 1.4;
+}
+
+.description {
+    margin: 12px 0 30px;
+    color: #b8bfcc;
+    line-height: 1.6;
+}
+
+.emotion-fieldset {
+    margin: 0 0 24px;
+    padding: 0;
+    border: 0;
+}
+
+.emotion-fieldset legend {
+    margin-bottom: 12px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.emotion-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.emotion-option {
+    position: relative;
+    cursor: pointer;
+}
+
+.emotion-option input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+}
+
+.emotion-option span {
+    display: block;
+    padding: 12px 8px;
+    border: 1px solid #343b49;
+    border-radius: 12px;
+    color: #d9deea;
+    text-align: center;
+    transition: 160ms ease;
+}
+
+.emotion-option:hover span {
+    border-color: #68738b;
+}
+
+.emotion-option:has(input:checked) span {
+    border-color: #aab8ff;
+    background: rgba(126, 145, 255, 0.16);
+    color: white;
+}
+
+.emotion-option:has(input:focus-visible) span {
+    outline: 2px solid #c5ceff;
+    outline-offset: 3px;
+}
+
+/* 컬러 픽커 */
+
+.color-picker-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: fit-content;
+    margin: 24px 0 30px;
+    padding: 10px 14px;
+    border: 1px solid #343b49;
+    border-radius: 14px;
+    background: #111722;
+    color: white;
+    cursor: pointer;
+}
+
+#emotion-color-picker {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+#emotion-color-picker::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+#emotion-color-picker::-webkit-color-swatch {
+    border: 0;
+    border-radius: 50%;
+}
+
+/* 시작 화면 버튼 */
+
+.start-button {
+    width: 100%;
+    min-height: 48px;
+    margin-top: 6px;
+    padding: 12px 16px;
+    border: 0;
+    border-radius: 12px;
+    background: #e6e9ff;
+    color: #151927;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 160ms ease, opacity 160ms ease;
+}
+
+.start-button:hover:not(:disabled) {
+    background: white;
+}
+
+.start-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+.step-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.step-buttons .start-button {
+    flex: 1;
+    margin-top: 0;
+}
+
+.back-button {
+    min-height: 48px;
+    padding: 0 20px;
+    border: 1px solid #454d5c;
+    border-radius: 12px;
+    background: transparent;
+    color: #e2e5ec;
+    cursor: pointer;
+}
+
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* 글 입력창 */
 
 .input-area form {
     position: fixed;
@@ -27,26 +247,120 @@ body {
     transform: translateX(-50%);
 
     display: flex;
+    align-items: flex-end;
     gap: 8px;
     padding: 8px;
 
     width: min(600px, calc(100% - 32px));
-    border-radius: 999px;
+    border-radius: 28px;
     background: #151a24;
 }
 
-.input-area input {
+.input-area textarea {
     flex: 1;
+    min-width: 0;
+    max-height: 160px;
+    overflow-y: auto;
+    resize: none;
+
+    box-sizing: border-box;
     border: none;
     outline: none;
     background: transparent;
     color: white;
+    font: inherit;
+    line-height: 1.5;
     padding: 12px 16px;
 }
 
 .input-area button {
+    flex: 0 0 auto;
+    align-self: flex-end;
+    min-height: 44px;
     border: none;
     border-radius: 999px;
     padding: 0 20px;
     cursor: pointer;
+}
+
+.input-area textarea::placeholder {
+    color: #a7adba;
+}
+
+.input-area button:hover {
+    background: white;
+}
+
+.input-area button:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
+
+#idle-dialog {
+    width: min(360px, calc(100% - 48px));
+    padding: 28px;
+    border: 1px solid #343b4a;
+    border-radius: 20px;
+    background: #151a24;
+    color: white;
+    text-align: center;
+}
+
+#idle-dialog::backdrop {
+    background: rgb(0 0 0 / 55%);
+    backdrop-filter: blur(4px);
+}
+
+#idle-dialog h2 {
+    margin: 0 0 12px;
+    font-size: 20px;
+}
+
+#idle-dialog p {
+    margin: 0 0 24px;
+    color: #c5cad4;
+}
+
+.idle-dialog-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.idle-dialog-buttons button {
+    min-height: 42px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+#continue-writing-button {
+    background: #e8eaf0;
+    color: #151a24;
+}
+
+#finish-writing-button {
+    background: #343b4a;
+    color: white;
+}
+
+/* 작은 화면 */
+
+@media (max-width: 480px) {
+    .start-screen {
+        padding: 16px;
+    }
+
+    .start-card {
+        padding: 26px 20px;
+    }
+
+    .emotion-options {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .input-area form {
+        bottom: 20px;
+    }
 }
