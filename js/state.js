@@ -1,12 +1,12 @@
 export const CONFIG = Object.freeze({
     lightRadius: 10,
-    lightSpeed: 1000,
+    lightSpeed: 500,
     lightGradient: 0.2,
     trailLifeTime: 0.6,
     trailSpacing: 8,
-    lightsPerResponse: 10,
+    minLightsPerResponse: 3,
+    maxLightsPerResponse: 20,
     maxLights: 20,
-    idleTimeLimitMs: 20_000,
     lightsDissipationDuration: 8,
     lightsBurstTime: 6.6,
     lightsBurstRadius: 85,
@@ -40,8 +40,7 @@ export const state = {
     lightsDissipationProgress: 0,
     backgroundProgress: 0,
     finishTotalEnergy: 0,
-    backgroundTone: { r: 5, g: 9, b: 20 },
-    idleTimer: null
+    backgroundTone: { r: 5, g: 9, b: 20 }
 };
 
 // 숫자를 0과 1 사이로 제한합니다.

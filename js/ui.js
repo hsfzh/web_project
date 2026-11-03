@@ -1,5 +1,4 @@
 import {
-    CONFIG,
     EMOTION_DEFAULT_COLORS,
     resetWritingMetrics,
     state
@@ -27,6 +26,7 @@ const endingScreen = document.getElementById("ending-screen");
 const idleDialog = document.getElementById("idle-dialog");
 const continueWritingButton = document.getElementById("continue-writing-button");
 const finishWritingButton = document.getElementById("finish-writing-button");
+const releaseEmotionButton = document.getElementById("release-emotion-button");
 const restartWritingButton = document.getElementById("restart-writing-button");
 
 // 내용 높이에 맞춰 입력창 크기를 조절합니다.
@@ -37,26 +37,6 @@ function resizeUserInput() {
 }
 
 // 사용자 활동이 멈췄을 때의 확인 창 타이머를 다시 설정합니다.
-function resetIdleTimer() {
-    clearTimeout(state.idleTimer);
-    state.idleTimer = null;
-
-    if (
-        writingScreen.hidden ||
-        userInput.disabled ||
-        idleDialog.open ||
-        state.lights.length === 0
-    ) {
-        return;
-    }
-
-    state.idleTimer = setTimeout(() => {
-        if (!idleDialog.open && state.lights.length > 0) {
-            idleDialog.showModal();
-        }
-    }, CONFIG.idleTimeLimitMs);
-}
-
 // 작성 시작 시각과 입력 사이의 멈춤 시간을 기록합니다.
 function recordTypingActivity() {
     const now = performance.now();
@@ -84,9 +64,6 @@ function handleSubmit(event) {
     const text = userInput.value.trim();
     if (!text) return;
 
-    clearTimeout(state.idleTimer);
-    state.idleTimer = null;
-
     const submitButton = inputForm.querySelector('[type="submit"]');
     const originalPlaceholder = userInput.placeholder;
     userInput.value = "";
@@ -96,7 +73,7 @@ function handleSubmit(event) {
     if (submitButton) submitButton.disabled = true;
 
     const emotions = analyzeEmotion(text);
-    createLightInstances(emotions);
+    createLightInstances(emotions, text.length);
     resetWritingMetrics();
 
     userInput.disabled = false;
@@ -104,7 +81,7 @@ function handleSubmit(event) {
     if (submitButton) submitButton.disabled = false;
 
     userInput.focus();
-    resetIdleTimer();
+    releaseEmotionButton.hidden = state.lights.length === 0;
 }
 
 // 설정 화면을 닫고 글쓰기 화면을 엽니다.
@@ -114,13 +91,11 @@ function startWriting(event) {
     startScreen.hidden = true;
     writingScreen.hidden = false;
     userInput.focus();
-    resetIdleTimer();
+    releaseEmotionButton.hidden = true;
 }
 
 // 빛 보내기 애니메이션을 시작합니다.
 function finishWriting() {
-    clearTimeout(state.idleTimer);
-    state.idleTimer = null;
     idleDialog.close();
     writingScreen.hidden = true;
     beginFinish();
@@ -129,8 +104,6 @@ function finishWriting() {
 
 // 감정 선택부터 다시 시작하도록 앱 상태를 초기화합니다.
 function restartWriting() {
-    clearTimeout(state.idleTimer);
-    state.idleTimer = null;
     if (idleDialog.open) idleDialog.close();
 
     resetLightScene();
@@ -213,17 +186,12 @@ function bindWritingEvents() {
 
     inputForm.addEventListener("submit", handleSubmit);
 
-    ["pointerdown", "pointermove", "keydown", "wheel", "touchstart", "input"].forEach(type => {
-        document.addEventListener(type, event => {
-            if (writingScreen.contains(event.target)) resetIdleTimer();
-        }, { passive: ["pointermove", "wheel", "touchstart"].includes(type) });
+    releaseEmotionButton.addEventListener("click", () => {
+        if (state.lights.length > 0 && !idleDialog.open) idleDialog.showModal();
     });
-
-    colorStep.addEventListener("submit", resetIdleTimer);
     continueWritingButton.addEventListener("click", () => {
         idleDialog.close();
         userInput.focus();
-        resetIdleTimer();
     });
     finishWritingButton.addEventListener("click", finishWriting);
     restartWritingButton.addEventListener("click", restartWriting);
@@ -232,7 +200,6 @@ function bindWritingEvents() {
         event.preventDefault();
         idleDialog.close();
         userInput.focus();
-        resetIdleTimer();
     });
 }
 

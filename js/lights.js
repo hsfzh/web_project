@@ -2,6 +2,7 @@ import { CONFIG, clamp01, hexToRgba, lerp, state } from "./state.js";
 
 const canvas = document.getElementById("light-canvas");
 const context = canvas.getContext("2d");
+const popSound = new Audio(new URL("../pop.wav", import.meta.url));
 
 // 빛이 화면 경계와 여백을 벗어났는지 확인합니다.
 function isOutsideCanvas(light, padding = CONFIG.lightRadius) {
@@ -188,19 +189,23 @@ export class Light {
 
 // 중앙에 도착한 빛을 작은 폭죽 입자들로 바꿉니다.
 function createLightBurst(light) {
-    const particleCount = 18;
+    const particleCount = 36;
+
+    const burstSound = popSound.cloneNode();
+    burstSound.currentTime = 0;
+    burstSound.play().catch(() => {});
 
     for (let i = 0; i < particleCount; i++) {
         const angle = (Math.PI * 2 * i) / particleCount + (Math.random() - 0.5) * 0.35;
-        const speed = 110 + Math.random() * 180;
+        const speed = 220 + Math.random() * 320;
         state.burstParticles.push({
             x: light.x,
             y: light.y,
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
             age: 0,
-            life: 0.8 + Math.random() * 0.55,
-            radius: 1.5 + Math.random() * 2.5,
+            life: 1.2 + Math.random() * 0.7,
+            radius: 3.5 + Math.random() * 4.5,
             color: light.color,
             energyWeight: light.opacity / particleCount
         });
@@ -311,7 +316,6 @@ function updateFinishBackground() {
 function finishIfComplete() {
     if (!state.isFinishingLights || state.lights.length > 0 || state.burstParticles.length > 0) return;
 
-    clearTimeout(state.idleTimer);
     state.lightsDissipationProgress = 1;
     state.backgroundProgress = 1;
     state.backgroundTone = { r: 255, g: 255, b: 255 };
@@ -362,8 +366,12 @@ export function startAnimation() {
 }
 
 // 감정 가중치에 맞춰 빛을 만들고 최대 개수를 유지합니다.
-export function createLightInstances(emotions) {
-    const counts = distributeLightCounts(emotions);
+export function createLightInstances(emotions, textLength) {
+    const lightCount = Math.min(
+        CONFIG.maxLightsPerResponse,
+        CONFIG.minLightsPerResponse + Math.floor(Math.max(0, textLength - 1) / 10)
+    );
+    const counts = distributeLightCounts(emotions, lightCount);
     const additions = [];
 
     emotions.forEach((emotion, index) => {
@@ -383,11 +391,11 @@ export function createLightInstances(emotions) {
 }
 
 // 감정별 가중치에 따라 정해진 빛 개수를 나눕니다.
-function distributeLightCounts(emotions) {
+function distributeLightCounts(emotions, lightCount) {
     if (emotions.length === 0) return [];
 
-    const counts = Array(emotions.length).fill(1);
-    const remaining = CONFIG.lightsPerResponse - emotions.length;
+    const counts = Array(emotions.length).fill(0);
+    const remaining = lightCount;
     if (remaining <= 0) return counts;
 
     const totalWeight = emotions.reduce((sum, emotion) => sum + emotion.weight, 0);
@@ -415,7 +423,6 @@ function distributeLightCounts(emotions) {
 
 // 감정별 종료 모드를 설정하고 마무리 애니메이션을 시작합니다.
 export function beginFinish() {
-    clearTimeout(state.idleTimer);
     state.isFinishingLights = true;
     state.lightsDissipationProgress = 0;
     state.backgroundProgress = 0;
