@@ -97,15 +97,19 @@
         <section class="ending-card" aria-labelledby="ending-title">
             <h1 id="ending-title">이야기를 남겨줘서 고마워요</h1>
             <p>마음을 조금 내려놓고, 천천히 쉬어가는 시간이 되었나요?</p>
-            <button class="start-button" id="restart-writing-button" type="button">다시 적기</button>
+            <div class="ending-actions">
+                <button class="start-button" id="leave-page-button" type="button">가벼운 마음으로 나아가기</button>
+                <button class="restart-button" id="restart-writing-button" type="button">다시 적기</button>
+            </div>
+            <p id="close-window-message" role="status" hidden>브라우저에서 창을 닫지 못했습니다. 이 탭을 직접 닫아주세요.</p>
         </section>
     </main>
 
-    <dialog id="idle-dialog" aria-labelledby="idle-title">
-        <h2 id="idle-title">감정을 놓아줄까요?</h2>
+    <dialog id="release-dialog" aria-labelledby="release-title">
+        <h2 id="release-title">감정을 놓아줄까요?</h2>
         <p>아니면 계속 작성할까요?</p>
 
-        <div class="idle-dialog-buttons">
+        <div class="release-dialog-buttons">
             <button id="continue-writing-button" type="button">
                 계속 작성하기
             </button>

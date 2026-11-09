@@ -23,11 +23,13 @@ const colorPicker = document.getElementById("emotion-color-picker");
 const colorValue = document.getElementById("color-value");
 const writingScreen = document.getElementById("writing-screen");
 const endingScreen = document.getElementById("ending-screen");
-const idleDialog = document.getElementById("idle-dialog");
+const releaseDialog = document.getElementById("release-dialog");
 const continueWritingButton = document.getElementById("continue-writing-button");
 const finishWritingButton = document.getElementById("finish-writing-button");
 const releaseEmotionButton = document.getElementById("release-emotion-button");
 const restartWritingButton = document.getElementById("restart-writing-button");
+const leavePageButton = document.getElementById("leave-page-button");
+const closeWindowMessage = document.getElementById("close-window-message");
 
 // 내용 높이에 맞춰 입력창 크기를 조절합니다.
 function resizeUserInput() {
@@ -36,34 +38,45 @@ function resizeUserInput() {
     userInput.style.overflowY = userInput.scrollHeight > 160 ? "auto" : "hidden";
 }
 
-// 사용자 활동이 멈췄을 때의 확인 창 타이머를 다시 설정합니다.
 // 작성 시작 시각과 입력 사이의 멈춤 시간을 기록합니다.
-function recordTypingActivity() {
+function recordWritingInputTiming() {
     const now = performance.now();
 
-    if (state.writingStartedAt === null && userInput.value.length > 0) {
-        state.writingStartedAt = now;
-        state.lastInputAt = now;
+    if (state.firstInputAt === null && userInput.value.length > 0) {
+        state.firstInputAt = now;
+        state.previousInputAt = now;
         return;
     }
 
-    if (state.lastInputAt !== null) {
-        const gap = now - state.lastInputAt;
+    if (state.previousInputAt !== null) {
+        const gap = now - state.previousInputAt;
         if (gap >= 2000) {
-            state.pauseCount++;
-            state.pausedTime += gap;
+            state.longPauseCount++;
+            state.accumulatedPauseTime += gap;
         }
     }
 
-    state.lastInputAt = now;
+    state.previousInputAt = now;
 }
 
 // 메시지를 분석하고 감정에 해당하는 빛을 추가합니다.
-function handleSubmit(event) {
+async function handleSubmit(event) {
     event.preventDefault();
     const text = userInput.value.trim();
     if (!text) return;
 
+    // 마지막 입력 뒤 전송 전까지의 멈춤 시간도 작성 통계에 반영합니다.
+    const submittedAt = performance.now();
+    if (state.previousInputAt !== null) {
+        const finalGap = submittedAt - state.previousInputAt;
+        if (finalGap >= 2000) {
+            state.longPauseCount++;
+            state.accumulatedPauseTime += finalGap;
+        }
+    }
+
+    const characterCount = [...text].length;
+    const emotions = analyzeEmotion(text);
     const submitButton = inputForm.querySelector('[type="submit"]');
     const originalPlaceholder = userInput.placeholder;
     userInput.value = "";
@@ -72,16 +85,18 @@ function handleSubmit(event) {
     userInput.disabled = true;
     if (submitButton) submitButton.disabled = true;
 
-    const emotions = analyzeEmotion(text);
-    createLightInstances(emotions, text.length);
-    resetWritingMetrics();
-
-    userInput.disabled = false;
-    userInput.placeholder = originalPlaceholder;
-    if (submitButton) submitButton.disabled = false;
-
-    userInput.focus();
-    releaseEmotionButton.hidden = state.lights.length === 0;
+    try {
+        // 로딩 상태가 화면에 그려진 뒤 CPU 작업을 진행합니다.
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        createLightInstances(emotions, characterCount);
+        resetWritingMetrics();
+        releaseEmotionButton.hidden = state.lights.length === 0;
+    } finally {
+        userInput.disabled = false;
+        userInput.placeholder = originalPlaceholder;
+        if (submitButton) submitButton.disabled = false;
+        userInput.focus();
+    }
 }
 
 // 설정 화면을 닫고 글쓰기 화면을 엽니다.
@@ -96,7 +111,7 @@ function startWriting(event) {
 
 // 빛 보내기 애니메이션을 시작합니다.
 function finishWriting() {
-    idleDialog.close();
+    releaseDialog.close();
     writingScreen.hidden = true;
     beginFinish();
     window.dispatchEvent(new Event("writing:finish"));
@@ -104,7 +119,7 @@ function finishWriting() {
 
 // 감정 선택부터 다시 시작하도록 앱 상태를 초기화합니다.
 function restartWriting() {
-    if (idleDialog.open) idleDialog.close();
+    if (releaseDialog.open) releaseDialog.close();
 
     resetLightScene();
     resetWritingMetrics();
@@ -165,7 +180,7 @@ function bindSetupEvents() {
     colorStep.addEventListener("submit", startWriting);
 }
 
-// 글쓰기, 유휴 확인, 종료 관련 이벤트를 연결합니다.
+// 글쓰기와 종료 관련 이벤트를 연결합니다.
 function bindWritingEvents() {
     userInput.addEventListener("keydown", event => {
         if (event.isComposing || event.keyCode === 229) return;
@@ -177,28 +192,34 @@ function bindWritingEvents() {
 
     userInput.addEventListener("input", () => {
         resizeUserInput();
-        recordTypingActivity();
+        recordWritingInputTiming();
     });
 
-    userInput.addEventListener("keydown", event => {
-        if (event.key === "Backspace") state.backspaceCount++;
+    userInput.addEventListener("input", event => {
+        if (event.inputType === "deleteContentBackward") {
+            state.backspaceCount++;
+        }
     });
 
     inputForm.addEventListener("submit", handleSubmit);
 
     releaseEmotionButton.addEventListener("click", () => {
-        if (state.lights.length > 0 && !idleDialog.open) idleDialog.showModal();
+        if (state.lights.length > 0 && !releaseDialog.open) releaseDialog.showModal();
     });
     continueWritingButton.addEventListener("click", () => {
-        idleDialog.close();
+        releaseDialog.close();
         userInput.focus();
     });
     finishWritingButton.addEventListener("click", finishWriting);
     restartWritingButton.addEventListener("click", restartWriting);
+    leavePageButton.addEventListener("click", () => {
+        window.close();
+        closeWindowMessage.hidden = false;
+    });
 
-    idleDialog.addEventListener("cancel", event => {
+    releaseDialog.addEventListener("cancel", event => {
         event.preventDefault();
-        idleDialog.close();
+        releaseDialog.close();
         userInput.focus();
     });
 }

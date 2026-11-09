@@ -28,10 +28,10 @@ export const EMOTION_DEFAULT_COLORS = Object.freeze({
 export const state = {
     focusEmotion: "",
     focusEmotionColor: "#FF4F4F",
-    writingStartedAt: null,
-    lastInputAt: null,
-    pauseCount: 0,
-    pausedTime: 0,
+    firstInputAt: null,
+    previousInputAt: null,
+    longPauseCount: 0,
+    accumulatedPauseTime: 0,
     backspaceCount: 0,
     lights: [],
     burstParticles: [],
@@ -62,9 +62,9 @@ export function hexToRgba(hex, alpha = 1) {
 
 // 한 번의 글쓰기 입력에서 수집한 통계를 초기화합니다.
 export function resetWritingMetrics() {
-    state.writingStartedAt = null;
-    state.lastInputAt = null;
-    state.pauseCount = 0;
-    state.pausedTime = 0;
+    state.firstInputAt = null;
+    state.previousInputAt = null;
+    state.longPauseCount = 0;
+    state.accumulatedPauseTime = 0;
     state.backspaceCount = 0;
 }

@@ -193,6 +193,7 @@ function createLightBurst(light) {
 
     const burstSound = popSound.cloneNode();
     burstSound.currentTime = 0;
+    burstSound.volume = popSound.volume * 0.7;
     burstSound.play().catch(() => { });
 
     for (let i = 0; i < particleCount; i++) {

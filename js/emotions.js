@@ -8,18 +8,18 @@ const emotionOptions = Object.entries(EMOTION_DEFAULT_COLORS).map(
 export function analyzeEmotion(text) {
     const now = performance.now();
     const characterCount = [...text].length;
-    const writingDuration = state.writingStartedAt === null
+    const writingDuration = state.firstInputAt === null
         ? 0
-        : (now - state.writingStartedAt) / 1000;
-    const pausedSeconds = state.pausedTime / 1000;
-    const activeWritingTime = Math.max(0, writingDuration - pausedSeconds);
+        : (now - state.firstInputAt) / 1000;
+    const pauseSeconds = state.accumulatedPauseTime / 1000;
+    const activeWritingTime = Math.max(0, writingDuration - pauseSeconds);
     const writingSpeed = activeWritingTime > 0
         ? characterCount / activeWritingTime
         : 0;
 
     let speedFactor = clamp01(writingSpeed / CONFIG.maxWritingSpeed);
     let pauseFactor = writingDuration > 0
-        ? clamp01((pausedSeconds / writingDuration) * 2)
+        ? clamp01((pauseSeconds / writingDuration) * 2)
         : 0;
     let backspaceFactor = clamp01(
         state.backspaceCount / CONFIG.maxBackspaceCount

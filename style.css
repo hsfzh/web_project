@@ -80,7 +80,36 @@ body {
     line-height: 1.6;
 }
 
-.ending-card #restart-writing-button:hover {
+.ending-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.ending-actions .start-button,
+.restart-button {
+    flex: 1;
+    width: auto;
+    min-height: 48px;
+    margin-top: 6px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.restart-button {
+    border: 1px solid #c5cad4;
+    border-radius: 12px;
+    background: #fff;
+    color: #333;
+}
+
+.restart-button:hover {
+    background: #f1f2f5;
+}
+
+.ending-card #leave-page-button:hover {
     background: #cbd2ff;
     box-shadow: 0 0 0 2px #8a96e8;
 }
@@ -340,7 +369,7 @@ body {
     background: #4b5568;
 }
 
-#idle-dialog {
+#release-dialog {
     width: min(360px, calc(100% - 48px));
     padding: 28px;
     border: 1px solid #343b4a;
@@ -350,28 +379,28 @@ body {
     text-align: center;
 }
 
-#idle-dialog::backdrop {
+#release-dialog::backdrop {
     background: rgb(0 0 0 / 55%);
     backdrop-filter: blur(4px);
 }
 
-#idle-dialog h2 {
+#release-dialog h2 {
     margin: 0 0 12px;
     font-size: 20px;
 }
 
-#idle-dialog p {
+#release-dialog p {
     margin: 0 0 24px;
     color: #c5cad4;
 }
 
-.idle-dialog-buttons {
+.release-dialog-buttons {
     display: flex;
     justify-content: space-between;
     gap: 12px;
 }
 
-.idle-dialog-buttons button {
+.release-dialog-buttons button {
     flex: 1;
     min-height: 42px;
     padding: 0 16px;
