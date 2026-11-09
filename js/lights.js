@@ -2,7 +2,7 @@ import { CONFIG, clamp01, hexToRgba, lerp, state } from "./state.js";
 
 const canvas = document.getElementById("light-canvas");
 const context = canvas.getContext("2d");
-const popSound = new Audio(new URL("../pop.wav", import.meta.url));
+const popSound = new Audio(new URL("../pop.mp3", import.meta.url));
 
 // 빛이 화면 경계와 여백을 벗어났는지 확인합니다.
 function isOutsideCanvas(light, padding = CONFIG.lightRadius) {
@@ -193,7 +193,7 @@ function createLightBurst(light) {
 
     const burstSound = popSound.cloneNode();
     burstSound.currentTime = 0;
-    burstSound.play().catch(() => {});
+    burstSound.play().catch(() => { });
 
     for (let i = 0; i < particleCount; i++) {
         const angle = (Math.PI * 2 * i) / particleCount + (Math.random() - 0.5) * 0.35;
